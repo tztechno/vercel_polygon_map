@@ -24,6 +24,7 @@ git push -f origin main
 
 cd vercel_polygon_map
 npm run dev
+npm install @types/leaflet
 
 http://localhost:3000
 
