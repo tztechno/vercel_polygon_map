@@ -18,7 +18,7 @@ git add .
 git commit -m “2024-07-29”
 git push -u origin main
 
-cd othello_v2
+
 npm run dev
 
 http://localhost:3000
