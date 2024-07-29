@@ -23,17 +23,16 @@ git push -u origin main
 git push -f origin main
 
 cd vercel_polygon_map
-npm run build
 npm run dev
-
+npm run build
 cd vercel_polygon_map
-npm install --save-dev eslint
+
 
 http://localhost:3000
 
 http://localhost:3001
 
 npm install
-npm install tailwindcss postcss autoprefixer
+
 
 ```
