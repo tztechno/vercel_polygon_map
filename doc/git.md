@@ -26,7 +26,8 @@ cd vercel_polygon_map
 npm run dev
 npm run build
 cd vercel_polygon_map
-
+rm -rf .next
+npm run build
 
 http://localhost:3000
 
