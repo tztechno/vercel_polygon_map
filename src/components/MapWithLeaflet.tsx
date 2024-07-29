@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react';
-import { MapContainer, TileLayer, Polygon, useMap } from 'react-leaflet';
+import { MapContainer, TileLayer, Polygon, MapContainerProps } from 'react-leaflet';
 import 'leaflet/dist/leaflet.css';
-import L from 'leaflet'; // 追加
+import L from 'leaflet';
 
 interface MapWithLeafletProps {
     polygons: any[];
@@ -26,7 +26,7 @@ const MapWithLeaflet: React.FC<MapWithLeafletProps> = ({ polygons, selectedPolyg
             center={[51.505, -0.09]} // 初期中心
             zoom={13}
             style={{ height: '100vh' }}
-            whenCreated={setMap}
+            whenReady={(e) => setMap(e.target)} // 修正
         >
             <TileLayer
                 url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
@@ -46,3 +46,4 @@ const MapWithLeaflet: React.FC<MapWithLeafletProps> = ({ polygons, selectedPolyg
 };
 
 export default MapWithLeaflet;
+

@@ -23,8 +23,11 @@ git push -u origin main
 git push -f origin main
 
 cd vercel_polygon_map
+npm run build
 npm run dev
-npm install @types/leaflet
+
+cd vercel_polygon_map
+npm install --save-dev eslint
 
 http://localhost:3000
 
