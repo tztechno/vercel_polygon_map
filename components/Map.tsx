@@ -3,10 +3,7 @@ import { MapContainer, TileLayer, GeoJSON } from 'react-leaflet';
 import { FeatureCollection } from 'geojson';
 import { Layer } from 'leaflet';  // Leafletから直接Layerをインポート
 import 'leaflet/dist/leaflet.css';
-
-interface MapProps {
-    geoJSONData: FeatureCollection;
-}
+import L from 'leaflet';
 
 const Map: React.FC<MapProps> = ({ geoJSONData }) => {
     const [map, setMap] = useState<L.Map | null>(null);
