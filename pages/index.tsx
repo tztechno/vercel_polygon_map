@@ -6,9 +6,18 @@ const HomePage = () => {
 
     useEffect(() => {
         const fetchPolygons = async () => {
-            const response = await fetch('/api/getKml');
-            const data = await response.json();
-            setPolygons(data);
+            try {
+                const response = await fetch('/api/getKml');
+                const data = await response.json();
+
+                if (Array.isArray(data)) {
+                    setPolygons(data);
+                } else {
+                    console.error('Fetched data is not an array:', data);
+                }
+            } catch (error) {
+                console.error('Error fetching polygons:', error);
+            }
         };
         fetchPolygons();
     }, []);
@@ -17,3 +26,4 @@ const HomePage = () => {
 };
 
 export default HomePage;
+

@@ -10,9 +10,9 @@ const MapComponent: React.FC<{ polygons: any[] }> = ({ polygons }) => {
         setSelectedPolygon(index);
     };
 
-    if (typeof window === 'undefined') {
-        // サーバーサイドでは何もレンダリングしない
-        return null;
+    if (!Array.isArray(polygons)) {
+        console.error('Polygons data is not an array:', polygons);
+        return <div>Error: Polygons data is not valid.</div>;
     }
 
     return <MapWithNoSSR polygons={polygons} selectedPolygon={selectedPolygon} onPolygonClick={handlePolygonClick} />;
