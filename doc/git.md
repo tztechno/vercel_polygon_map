@@ -8,11 +8,12 @@ npm install
 npm run dev
 
 https://github.com/tztechno/vercel_polygon_map.git
+cd vercel_polygon_map
 
 git init
 git remote add origin https://github.com/tztechno/vercel_polygon_map.git
 
-cd vercel_polygon_map
+
 git pull
 git add .
 git commit -m “2024-07-29”
