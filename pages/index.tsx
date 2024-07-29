@@ -1,13 +1,13 @@
 import React, { useEffect, useState } from 'react';
 import MapComponent from '../components/MapComponent';
-import parseKml from '../lib/parseKml';
 
 const HomePage = () => {
-    const [polygons, setPolygons] = useState([]);
+    const [polygons, setPolygons] = useState<any[]>([]);
 
     useEffect(() => {
         const fetchPolygons = async () => {
-            const data = await parseKml('/path/to/your/file.kml');
+            const response = await fetch('/api/getKml');
+            const data = await response.json();
             setPolygons(data);
         };
         fetchPolygons();
