@@ -1,9 +1,12 @@
 import { useEffect, useState } from 'react';
 import { MapContainer, TileLayer, GeoJSON } from 'react-leaflet';
 import { FeatureCollection } from 'geojson';
-import { Layer } from 'leaflet';  // Leafletから直接Layerをインポート
-import 'leaflet/dist/leaflet.css';
 import L from 'leaflet';
+import 'leaflet/dist/leaflet.css';
+
+interface MapProps {
+    geoJSONData: FeatureCollection;
+}
 
 const Map: React.FC<MapProps> = ({ geoJSONData }) => {
     const [map, setMap] = useState<L.Map | null>(null);
@@ -15,7 +18,7 @@ const Map: React.FC<MapProps> = ({ geoJSONData }) => {
         }
     }, [map, geoJSONData]);
 
-    const onEachFeature = (feature: any, layer: Layer) => {
+    const onEachFeature = (feature: any, layer: L.Layer) => {
         layer.on({
             click: (e: L.LeafletMouseEvent) => {
                 const targetLayer = e.target as L.Path;
