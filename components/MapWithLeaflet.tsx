@@ -1,5 +1,5 @@
-import React from 'react';
-import { MapContainer, TileLayer, Polygon } from 'react-leaflet';
+import React, { useEffect, useState } from 'react';
+import { MapContainer, TileLayer, Polygon, useMap } from 'react-leaflet';
 import 'leaflet/dist/leaflet.css';
 
 interface MapWithLeafletProps {
@@ -9,8 +9,25 @@ interface MapWithLeafletProps {
 }
 
 const MapWithLeaflet: React.FC<MapWithLeafletProps> = ({ polygons, selectedPolygon, onPolygonClick }) => {
+    const [map, setMap] = useState<L.Map | null>(null);
+
+    useEffect(() => {
+        if (map && polygons.length > 0) {
+            // ポリゴンの中心を計算する
+            const bounds = polygons.flatMap(coords => coords);
+            const latLngBounds = L.latLngBounds(bounds);
+
+            map.fitBounds(latLngBounds, { padding: [50, 50] });
+        }
+    }, [map, polygons]);
+
     return (
-        <MapContainer center={[51.505, -0.09]} zoom={13} style={{ height: '100vh' }}>
+        <MapContainer
+            center={[51.505, -0.09]} // 初期中心
+            zoom={13}
+            style={{ height: '100vh' }}
+            whenCreated={setMap}
+        >
             <TileLayer
                 url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
             />
@@ -29,3 +46,4 @@ const MapWithLeaflet: React.FC<MapWithLeafletProps> = ({ polygons, selectedPolyg
 };
 
 export default MapWithLeaflet;
+
