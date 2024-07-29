@@ -27,6 +27,8 @@ npm run dev
 
 http://localhost:3000
 
+http://localhost:3001
+
 npm install
 npm install tailwindcss postcss autoprefixer
 
