@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { MapContainer, TileLayer, Polygon, useMap } from 'react-leaflet';
 import 'leaflet/dist/leaflet.css';
+import L from 'leaflet'; // 追加
 
 interface MapWithLeafletProps {
     polygons: any[];
@@ -13,7 +14,6 @@ const MapWithLeaflet: React.FC<MapWithLeafletProps> = ({ polygons, selectedPolyg
 
     useEffect(() => {
         if (map && polygons.length > 0) {
-            // ポリゴンの中心を計算する
             const bounds = polygons.flatMap(coords => coords);
             const latLngBounds = L.latLngBounds(bounds);
 
@@ -46,4 +46,3 @@ const MapWithLeaflet: React.FC<MapWithLeafletProps> = ({ polygons, selectedPolyg
 };
 
 export default MapWithLeaflet;
-
