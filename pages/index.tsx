@@ -11,7 +11,7 @@ export default function Home() {
     useEffect(() => {
         async function fetchKML() {
             try {
-                const response = await fetch('/polygon.kml');//set keml file
+                const response = await fetch('/region.kml');//set keml file
                 const kmlString = await response.text();
                 const geojson = parseKML(kmlString);
                 setGeoJSONData(geojson);

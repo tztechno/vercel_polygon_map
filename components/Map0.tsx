@@ -4,21 +4,11 @@ import { FeatureCollection } from 'geojson';
 import L from 'leaflet';
 import 'leaflet/dist/leaflet.css';
 
-const progressData = {
-    'Region 1': 80,
-    'Region 2': 55,
-    'Region 3': 30,
-    'Region 4': 10,
-    // その他の地域データ
-};
-
-
 interface MapProps {
     geoJSONData: FeatureCollection;
-    progressData: { [region: string]: number };
 }
 
-const MapContent: React.FC<{ geoJSONData: FeatureCollection, progressData: { [region: string]: number } }> = ({ geoJSONData, progressData }) => {
+const MapContent: React.FC<{ geoJSONData: FeatureCollection }> = ({ geoJSONData }) => {
     const map = useMap();
 
     useEffect(() => {
@@ -26,47 +16,13 @@ const MapContent: React.FC<{ geoJSONData: FeatureCollection, progressData: { [re
         map.fitBounds(bounds);
     }, [map, geoJSONData]);
 
-    useEffect(() => {
-        geoJSONData.features.forEach((feature) => {
-            if (feature.geometry.type === 'Point' && feature.properties && feature.properties.name) {
-                const [longitude, latitude] = feature.geometry.coordinates;
-                const marker = L.marker([latitude, longitude])
-                    .addTo(map)
-                    .bindPopup(feature.properties.name);
-            }
-        });
-    }, [map, geoJSONData]);
-
     return null;
 };
 
-const getColorBasedOnProgress = (progress: number) => {
-    if (progress >= 75) {
-        return 'green';
-    } else if (progress >= 50) {
-        return 'yellow';
-    } else if (progress >= 25) {
-        return 'orange';
-    } else {
-        return 'red';
-    }
-};
-
-const Map: React.FC<MapProps> = ({ geoJSONData, progressData }) => {
+const Map: React.FC<MapProps> = ({ geoJSONData }) => {
     const [map, setMap] = useState<L.Map | null>(null);
 
     const onEachFeature = (feature: any, layer: L.Layer) => {
-        const regionName = feature.properties.name;
-        const progress = progressData[regionName] || 0; // デフォルト値は0
-        const color = getColorBasedOnProgress(progress);
-
-        layer.setStyle({
-            fillColor: color,
-            fillOpacity: 0.7,
-            color: 'black',
-            weight: 1,
-        });
-
         layer.on({
             click: (e: L.LeafletMouseEvent) => {
                 const targetLayer = e.target as L.Path;
@@ -96,7 +52,7 @@ const Map: React.FC<MapProps> = ({ geoJSONData, progressData }) => {
         >
             <TileLayer url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png" />
             <GeoJSON data={geoJSONData} onEachFeature={onEachFeature} />
-            <MapContent geoJSONData={geoJSONData} progressData={progressData} />
+            <MapContent geoJSONData={geoJSONData} />
         </MapContainer>
     );
 };
