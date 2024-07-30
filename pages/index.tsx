@@ -11,7 +11,7 @@ export default function Home() {
     useEffect(() => {
         async function fetchKML() {
             try {
-                const response = await fetch('/sample.kml');
+                const response = await fetch('/polygon.kml');//set keml file
                 const kmlString = await response.text();
                 const geojson = parseKML(kmlString);
                 setGeoJSONData(geojson);
@@ -26,7 +26,7 @@ export default function Home() {
 
     return (
         <div>
-            <h1>KML Map</h1>
+            <h1>Polygon Map</h1>
             <Map geoJSONData={geoJSONData} />
         </div>
     );
