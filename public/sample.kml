@@ -1,7 +1,8 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <kml xmlns="http://www.opengis.net/kml/2.2">
   <Document>
-    <name>無題のレイヤ</name>
+    <name>無題の地図</name>
+    <description/>
     <Style id="poly-000000-1200-77-nodesc-normal">
       <LineStyle>
         <color>ff000000</color>
@@ -40,34 +41,115 @@
         <styleUrl>#poly-000000-1200-77-nodesc-highlight</styleUrl>
       </Pair>
     </StyleMap>
-    <Placemark>
-      <name>ポリゴン 1</name>
-      <styleUrl>#poly-000000-1200-77-nodesc</styleUrl>
-      <Polygon>
-        <outerBoundaryIs>
-          <LinearRing>
-            <tessellate>1</tessellate>
-            <coordinates>
-              117.4887382,43.8337087,0
-              117.5766288,40.446084,0
-              118.2797538,38.8901501,0
-              121.4438163,36.3849998,0
-              122.5863944,34.0153019,0
-              125.1352226,32.3975583,0
-              127.9477226,31.202435,0
-              133.2211601,29.6870676,0
-              135.8578788,31.4276954,0
-              135.2426444,32.8417208,0
-              136.0336601,35.8168936,0
-              135.8578788,38.4096696,0
-              133.3090507,41.6392309,0
-              129.2660819,44.2128971,0
-              125.3988944,44.4643417,0
-              117.4887382,43.8337087,0
-            </coordinates>
-          </LinearRing>
-        </outerBoundaryIs>
-      </Polygon>
-    </Placemark>
+    <Folder>
+      <name>無題のレイヤ</name>
+      <Placemark>
+        <name>ポリゴン 1</name>
+        <styleUrl>#poly-000000-1200-77-nodesc</styleUrl>
+        <Polygon>
+          <outerBoundaryIs>
+            <LinearRing>
+              <tessellate>1</tessellate>
+              <coordinates>
+                139.7538427,35.679078,0
+                139.7545293,35.6816227,0
+                139.7565893,35.6828776,0
+                139.7549585,35.6847948,0
+                139.7532419,35.6869211,0
+                139.7530702,35.6885245,0
+                139.7534994,35.6890125,0
+                139.7517828,35.6894307,0
+                139.7489933,35.6883502,0
+                139.746075,35.6879319,0
+                139.7459892,35.686224,0
+                139.7453025,35.6840628,0
+                139.746075,35.6821805,0
+                139.7468475,35.6806815,0
+                139.7480491,35.6805072,0
+                139.7492937,35.6791129,0
+                139.7503236,35.6781019,0
+                139.7522977,35.6783111,0
+                139.7538427,35.679078,0
+              </coordinates>
+            </LinearRing>
+          </outerBoundaryIs>
+        </Polygon>
+      </Placemark>
+      <Placemark>
+        <name>ポリゴン 2</name>
+        <styleUrl>#poly-000000-1200-77-nodesc</styleUrl>
+        <Polygon>
+          <outerBoundaryIs>
+            <LinearRing>
+              <tessellate>1</tessellate>
+              <coordinates>
+                139.7570613,35.6831565,0
+                139.7592929,35.6841325,0
+                139.7604087,35.68598,0
+                139.7606662,35.6881759,0
+                139.7590355,35.689605,0
+                139.7576192,35.6897444,0
+                139.7553018,35.689605,0
+                139.7540144,35.6889428,0
+                139.753714,35.6878622,0
+                139.7543148,35.6866771,0
+                139.7551302,35.6854571,0
+                139.7558597,35.6845508,0
+                139.756246,35.6839931,0
+                139.7570613,35.6831565,0
+              </coordinates>
+            </LinearRing>
+          </outerBoundaryIs>
+        </Polygon>
+      </Placemark>
+      <Placemark>
+        <name>ポリゴン 3</name>
+        <styleUrl>#poly-000000-1200-77-nodesc</styleUrl>
+        <Polygon>
+          <outerBoundaryIs>
+            <LinearRing>
+              <tessellate>1</tessellate>
+              <coordinates>
+                139.7589925,35.6767232,0
+                139.7604516,35.6793726,0
+                139.7618249,35.68251,0
+                139.7595933,35.682998,0
+                139.7581341,35.6827888,0
+                139.7567609,35.6820219,0
+                139.7554734,35.6811156,0
+                139.7553876,35.6786754,0
+                139.7559884,35.6774902,0
+                139.7589925,35.6767232,0
+              </coordinates>
+            </LinearRing>
+          </outerBoundaryIs>
+        </Polygon>
+      </Placemark>
+      <Placemark>
+        <name>ポリゴン 4</name>
+        <styleUrl>#poly-000000-1200-77-nodesc</styleUrl>
+        <Polygon>
+          <outerBoundaryIs>
+            <LinearRing>
+              <tessellate>1</tessellate>
+              <coordinates>
+                139.7480061,35.6939427,0
+                139.7476628,35.6906664,0
+                139.7492078,35.6902482,0
+                139.7513535,35.6901088,0
+                139.753671,35.691015,0
+                139.7543576,35.6928971,0
+                139.7522118,35.6932457,0
+                139.7503236,35.6946398,0
+                139.7480061,35.6939427,0
+              </coordinates>
+            </LinearRing>
+          </outerBoundaryIs>
+        </Polygon>
+      </Placemark>
+    </Folder>
+    <Folder>
+      <name>無題のレイヤ</name>
+    </Folder>
   </Document>
 </kml>
