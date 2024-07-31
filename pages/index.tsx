@@ -10,7 +10,6 @@ const IndexPage: React.FC = () => {
 
     const handleProgressUpdate = (newProgressData: ProgressData) => {
         setProgressData(newProgressData);
-        console.log('Updated progress data:', newProgressData); // デバッグ用ログ
     };
 
     const handleSaveCSV = () => {

@@ -1,3 +1,8 @@
+このコードは、ReactとReact-Leafletを使用して地図上にポリゴンを描画し、クリックするとそのポリゴンの色が変わるウェブアプリケーションを作成します。以下に各部分の説明をします。
+
+### インポートとインターフェース定義
+
+```typescript
 import { useEffect, useState, useCallback } from 'react';
 import { MapContainer, TileLayer, GeoJSON, useMap } from 'react-leaflet';
 import * as Papa from 'papaparse';
@@ -13,7 +18,15 @@ export interface ProgressData {
 interface MapProps {
     onProgressUpdate: (progressData: ProgressData) => void;
 }
+```
 
+- 必要なモジュールとライブラリをインポートしています。
+- `ProgressData` インターフェースは、地域ごとの進捗データを保持するためのオブジェクトの型を定義しています。
+- `MapProps` インターフェースは、`Map` コンポーネントに渡されるプロパティを定義しています。
+
+### 地図の中心と境界を設定するコンポーネント
+
+```typescript
 const MapContent: React.FC<{ geoJSONData: FeatureCollection }> = ({ geoJSONData }) => {
     const map = useMap();
 
@@ -32,7 +45,13 @@ const MapContent: React.FC<{ geoJSONData: FeatureCollection }> = ({ geoJSONData 
 
     return null;
 };
+```
 
+- `MapContent` コンポーネントは、地図の中心とズームレベルを、渡された `geoJSONData` の境界に基づいて設定します。
+
+### 進捗データに基づく色設定関数
+
+```typescript
 const getColorByProgress = (progress: number) => {
     switch (progress) {
         case 0:
@@ -47,7 +66,13 @@ const getColorByProgress = (progress: number) => {
             return 'black';
     }
 };
+```
 
+- `getColorByProgress` 関数は、進捗の値に基づいてポリゴンの色を決定します。
+
+### WKT (Well-Known Text) を GeoJSON に変換する関数
+
+```typescript
 const parseWKT = (wkt: string): GeoJSON.Geometry | null => {
     try {
         const geojson = wellknown.parse(wkt);
@@ -57,7 +82,13 @@ const parseWKT = (wkt: string): GeoJSON.Geometry | null => {
         return null;
     }
 };
+```
 
+- `parseWKT` 関数は、WKT 形式の文字列を GeoJSON に変換します。
+
+### 地図コンポーネント
+
+```typescript
 const Map: React.FC<MapProps> = ({ onProgressUpdate }) => {
     const [geoJSONData, setGeoJSONData] = useState<FeatureCollection | null>(null);
     const [progressData, setProgressData] = useState<ProgressData>({});
@@ -130,7 +161,6 @@ const Map: React.FC<MapProps> = ({ onProgressUpdate }) => {
                 color: 'black',
             });
 
-            layer.off('click'); // 追加: クリックイベントリスナーの重複を防ぐ
             layer.on({
                 click: (e: L.LeafletMouseEvent) => {
                     const targetLayer = e.target as L.Path;
@@ -168,4 +198,10 @@ const Map: React.FC<MapProps> = ({ onProgressUpdate }) => {
 };
 
 export default Map;
+```
 
+- `Map` コンポーネントは、地図を表示し、`Polygon.csv` と `Progress.csv` ファイルからデータを読み込んで状態を設定します。
+- `useEffect` フックを使用して、データのフェッチとパースを行います。
+- `onEachFeature` コールバックを使用して、各ポリゴンのスタイルとクリックイベントを設定します。ポリゴンをクリックすると、その進捗が更新され、色が変わります。
+
+このコード全体で、`Polygon.csv` からポリゴンデータを読み込み、`Progress.csv` から進捗データを読み込み、それらを地図上に表示し、クリックイベントで進捗データを更新する機能を実現しています。
