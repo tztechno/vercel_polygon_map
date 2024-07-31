@@ -1,33 +1,16 @@
-import { useEffect, useState } from 'react';
+import React from 'react';
 import dynamic from 'next/dynamic';
-import { parseKML } from '../lib/kmlParser';
-import { FeatureCollection } from 'geojson';
 
-const Map = dynamic(() => import('../components/Map'), { ssr: false });
+// MapComponent を動的インポート
+const MapComponent = dynamic(() => import('../components/Map'), { ssr: false });
 
-export default function Home() {
-    const [geoJSONData, setGeoJSONData] = useState<FeatureCollection | null>(null);
-
-    useEffect(() => {
-        async function fetchKML() {
-            try {
-                const response = await fetch('/region.kml');//set keml file
-                const kmlString = await response.text();
-                const geojson = parseKML(kmlString);
-                setGeoJSONData(geojson);
-            } catch (error) {
-                console.error('Error fetching or parsing KML:', error);
-            }
-        }
-        fetchKML();
-    }, []);
-
-    if (!geoJSONData) return <div>Loading...</div>;
-
+const IndexPage: React.FC = () => {
     return (
         <div>
             <h1>Polygon Map</h1>
-            <Map geoJSONData={geoJSONData} />
+            <MapComponent />
         </div>
     );
-}
+};
+
+export default IndexPage;

@@ -117,7 +117,7 @@ const Map: React.FC = () => {
 
     const onEachFeature = (feature: any, layer: L.Layer) => {
         const regionId = feature.properties.region;
-        const progress = progressData[regionId] || 0;
+        const progress = progressData[regionId];
         const color = getColorByProgress(progress);
 
         if (layer instanceof L.Polygon || layer instanceof L.Polyline) {
@@ -131,42 +131,14 @@ const Map: React.FC = () => {
             layer.on({
                 click: (e: L.LeafletMouseEvent) => {
                     const targetLayer = e.target as L.Path;
-                    let newProgress = (progressData[regionId] || 0) + 1;
-                    if (newProgress > 3) newProgress = 0;
-
-                    progressData[regionId] = newProgress;
-                    const newColor = getColorByProgress(newProgress);
-
+                    const currentColor = targetLayer.options.fillColor;
                     targetLayer.setStyle({
-                        fillColor: newColor,
+                        fillColor: currentColor === 'red' ? 'blue' : 'red',
                     });
-
-                    // Progress.csvに書き込む
-                    updateProgressCSV(regionId, newProgress);
                 },
             });
         } else {
             console.warn('Unexpected layer type:', layer);
-        }
-    };
-
-    const updateProgressCSV = async (regionId: string, newProgress: number) => {
-        try {
-            const response = await fetch('/api/updateProgress', {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                },
-                body: JSON.stringify({ regionId, progress: newProgress }),
-            });
-
-            if (!response.ok) {
-                throw new Error('Failed to update progress');
-            }
-
-            console.log('Progress updated successfully');
-        } catch (error) {
-            console.error('Error updating progress:', error);
         }
     };
 
