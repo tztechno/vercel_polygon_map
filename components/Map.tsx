@@ -132,7 +132,6 @@ const Map: React.FC<MapProps> = ({ onProgressUpdate }) => {
 
             layer.on({
                 click: (e: L.LeafletMouseEvent) => {
-                    console.log('Layer clicked:', feature.properties);
                     const targetLayer = e.target as L.Path;
                     let newProgress = (progressData[regionId] || 0) + 1;
                     if (newProgress > 3) newProgress = 0;
@@ -141,10 +140,7 @@ const Map: React.FC<MapProps> = ({ onProgressUpdate }) => {
                     setProgressData(newProgressData);
                     onProgressUpdate(newProgressData);
 
-                    console.log('New progress data:', newProgressData);
-
                     const newColor = getColorByProgress(newProgress);
-                    console.log('New color:', newColor);
                     targetLayer.setStyle({
                         fillColor: newColor,
                     });
@@ -155,40 +151,15 @@ const Map: React.FC<MapProps> = ({ onProgressUpdate }) => {
         }
     }, [progressData, onProgressUpdate]);
 
-    useEffect(() => {
-        if (geoJSONData) {
-            const layer = L.geoJSON(geoJSONData);
-            layer.eachLayer((l) => {
-                if (l instanceof L.Path) {
-                    const feature = (l as any).feature as Feature;
-                    const regionId = feature.properties?.region as string;
-                    const progress = progressData[regionId] || 0;
-                    const color = getColorByProgress(progress);
-                    l.setStyle({
-                        fillColor: color,
-                        fillOpacity: 0.5,
-                        weight: 2,
-                        color: 'black',
-                    });
-                }
-            });
-        }
-    }, [geoJSONData, progressData]);
-
-    const handleMapReady = useCallback(() => {
-        // MapContainer が準備できたときの処理
-    }, []);
-
     return (
         <MapContainer
             style={{ height: '600px', width: '100%' }}
             center={[0, 0]}
             zoom={2}
-            whenReady={handleMapReady}
         >
             <TileLayer url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png" />
             {geoJSONData && (
-                <GeoJSON key={JSON.stringify(progressData)} data={geoJSONData} onEachFeature={onEachFeature} />
+                <GeoJSON data={geoJSONData} onEachFeature={onEachFeature} />
             )}
             {geoJSONData && <MapContent geoJSONData={geoJSONData} />}
         </MapContainer>

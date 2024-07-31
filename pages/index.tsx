@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
 import dynamic from 'next/dynamic';
 import { ProgressData } from '../components/Map';
 import * as Papa from 'papaparse';
