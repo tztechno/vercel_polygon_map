@@ -14,6 +14,10 @@ interface MapProps {
     onProgressUpdate: (progressData: ProgressData) => void;
 }
 
+export interface MapHandle {
+    loadInitialProgressData: () => void;
+}
+
 const MapContent: React.FC<{ geoJSONData: FeatureCollection }> = ({ geoJSONData }) => {
     const map = useMap();
 
@@ -58,7 +62,7 @@ const parseWKT = (wkt: string): GeoJSON.Geometry | null => {
     }
 };
 
-const Map = forwardRef<{ loadInitialProgressData: () => void }, MapProps>(({ onProgressUpdate }, ref) => {
+const Map = forwardRef<MapHandle, MapProps>(({ onProgressUpdate }, ref) => {
     const [geoJSONData, setGeoJSONData] = useState<FeatureCollection | null>(null);
     const [progressData, setProgressData] = useState<ProgressData>(() => {
         const savedProgress = localStorage.getItem('progressData');

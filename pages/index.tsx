@@ -1,13 +1,13 @@
 import React, { useState, useRef } from 'react';
 import dynamic from 'next/dynamic';
-import { ProgressData } from '../components/Map';
+import { ProgressData, MapHandle } from '../components/Map'; // ここで MapHandle をインポート
 import * as Papa from 'papaparse';
 
 const MapComponent = dynamic(() => import('../components/Map'), { ssr: false });
 
 const IndexPage: React.FC = () => {
     const [progressData, setProgressData] = useState<ProgressData>({});
-    const mapRef = useRef<{ loadInitialProgressData: () => void }>(null);
+    const mapRef = useRef<MapHandle>(null);
 
     const handleProgressUpdate = (newProgressData: ProgressData) => {
         setProgressData(newProgressData);
