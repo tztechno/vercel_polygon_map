@@ -1,4 +1,4 @@
-import { useEffect, useState, useCallback, useMemo, forwardRef } from 'react';
+import { useEffect, useState, useCallback, useMemo, forwardRef, useImperativeHandle } from 'react';
 import { MapContainer, TileLayer, GeoJSON, useMap } from 'react-leaflet';
 import * as Papa from 'papaparse';
 import L from 'leaflet';
@@ -58,12 +58,36 @@ const parseWKT = (wkt: string): GeoJSON.Geometry | null => {
     }
 };
 
-const Map = forwardRef<null, MapProps>(({ onProgressUpdate }, ref) => {
+const Map = forwardRef<{ loadInitialProgressData: () => void }, MapProps>(({ onProgressUpdate }, ref) => {
     const [geoJSONData, setGeoJSONData] = useState<FeatureCollection | null>(null);
     const [progressData, setProgressData] = useState<ProgressData>(() => {
         const savedProgress = localStorage.getItem('progressData');
         return savedProgress ? JSON.parse(savedProgress) : {};
     });
+
+    const loadInitialProgressData = useCallback(() => {
+        fetch('./Progress.csv')
+            .then((response) => response.text())
+            .then((csvText) => {
+                Papa.parse(csvText, {
+                    header: true,
+                    complete: (results) => {
+                        const data: ProgressData = {};
+                        results.data.forEach((row: any) => {
+                            if (row.region && row.progress) {
+                                data[row.region] = Number(row.progress);
+                            }
+                        });
+                        setProgressData(data);
+                        onProgressUpdate(data);
+                    },
+                });
+            });
+    }, [onProgressUpdate]);
+
+    useImperativeHandle(ref, () => ({
+        loadInitialProgressData,
+    }), [loadInitialProgressData]);
 
     useEffect(() => {
         localStorage.setItem('progressData', JSON.stringify(progressData));

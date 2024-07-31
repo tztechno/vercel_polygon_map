@@ -7,7 +7,7 @@ const MapComponent = dynamic(() => import('../components/Map'), { ssr: false });
 
 const IndexPage: React.FC = () => {
     const [progressData, setProgressData] = useState<ProgressData>({});
-    const mapRef = useRef<null>(null);
+    const mapRef = useRef<{ loadInitialProgressData: () => void }>(null);
 
     const handleProgressUpdate = (newProgressData: ProgressData) => {
         setProgressData(newProgressData);
@@ -37,7 +37,7 @@ const IndexPage: React.FC = () => {
 
     const handleResetProgress = () => {
         if (mapRef.current) {
-            // リセット機能は別ファイルで処理
+            mapRef.current.loadInitialProgressData();
         }
     };
 
@@ -64,4 +64,3 @@ const IndexPage: React.FC = () => {
 };
 
 export default IndexPage;
-
