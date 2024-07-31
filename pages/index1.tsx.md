@@ -1,4 +1,4 @@
-import React, { useState, useRef } from 'react';
+import React, { useState } from 'react';
 import dynamic from 'next/dynamic';
 import { ProgressData } from '../components/Map';
 import * as Papa from 'papaparse';
@@ -7,7 +7,6 @@ const MapComponent = dynamic(() => import('../components/Map'), { ssr: false });
 
 const IndexPage: React.FC = () => {
     const [progressData, setProgressData] = useState<ProgressData>({});
-    const mapRef = useRef<{ loadInitialProgressData: () => void }>(null);
 
     const handleProgressUpdate = (newProgressData: ProgressData) => {
         setProgressData(newProgressData);
@@ -35,17 +34,11 @@ const IndexPage: React.FC = () => {
         }
     };
 
-    const handleResetProgress = () => {
-        if (mapRef.current) {
-            mapRef.current.loadInitialProgressData();
-        }
-    };
-
     return (
         <div style={{ display: 'flex' }}>
             <div style={{ width: '80%' }}>
                 <h1>Polygon Map</h1>
-                <MapComponent onProgressUpdate={handleProgressUpdate} ref={mapRef} />
+                <MapComponent onProgressUpdate={handleProgressUpdate} />
             </div>
             <div style={{ width: '20%', padding: '20px' }}>
                 <h2>Progress Data</h2>
@@ -57,7 +50,6 @@ const IndexPage: React.FC = () => {
                     ))}
                 </ul>
                 <button onClick={handleSaveCSV}>Save Progress to CSV</button>
-                <button onClick={handleResetProgress}>Reset Progress</button>
             </div>
         </div>
     );
