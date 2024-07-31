@@ -192,4 +192,6 @@ const Map = forwardRef<{ loadInitialProgressData: () => void }, MapProps>(({ onP
     );
 });
 
+Map.displayName = 'Map';
+
 export default Map;
