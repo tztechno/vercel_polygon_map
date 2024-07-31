@@ -21,12 +21,13 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
                 }
                 return row;
             });
-
+/*
             // 更新されたデータをCSVに書き込む
             const csv = Papa.unparse(updatedData);
             fs.writeFileSync(filePath, csv);
 
             res.status(200).json({ message: 'Progress updated successfully' });
+*/
         } catch (error) {
             console.error('Error updating CSV:', error);
             res.status(500).json({ message: 'Error updating progress' });

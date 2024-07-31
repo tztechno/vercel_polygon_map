@@ -43,8 +43,6 @@ const getColorByProgress = (progress: number) => {
             return 'blue';
         case 3:
             return 'gray';
-        default:
-            return 'black';
     }
 };
 
@@ -132,7 +130,6 @@ const Map: React.FC<MapProps> = ({ onProgressUpdate }) => {
 
             layer.on({
                 click: (e: L.LeafletMouseEvent) => {
-                    console.log('Layer clicked:', feature.properties);
                     const targetLayer = e.target as L.Path;
                     let newProgress = (progressData[regionId] || 0) + 1;
                     if (newProgress > 3) newProgress = 0;
@@ -141,10 +138,7 @@ const Map: React.FC<MapProps> = ({ onProgressUpdate }) => {
                     setProgressData(newProgressData);
                     onProgressUpdate(newProgressData);
 
-                    console.log('New progress data:', newProgressData);
-
                     const newColor = getColorByProgress(newProgress);
-                    console.log('New color:', newColor);
                     targetLayer.setStyle({
                         fillColor: newColor,
                     });
