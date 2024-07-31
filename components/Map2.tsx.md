@@ -3,15 +3,12 @@ import { MapContainer, TileLayer, GeoJSON, useMap } from 'react-leaflet';
 import * as Papa from 'papaparse';
 import L from 'leaflet';
 import 'leaflet/dist/leaflet.css';
-import { FeatureCollection, Feature } from 'geojson';
+import { FeatureCollection } from 'geojson';
 import wellknown from 'wellknown';
 
-export interface ProgressData {
-    [key: string]: number;
-}
 
-interface MapProps {
-    onProgressUpdate: (progressData: ProgressData) => void;
+interface ProgressData {
+    [key: string]: number;
 }
 
 const MapContent: React.FC<{ geoJSONData: FeatureCollection }> = ({ geoJSONData }) => {
@@ -22,6 +19,7 @@ const MapContent: React.FC<{ geoJSONData: FeatureCollection }> = ({ geoJSONData 
             const geojsonLayer = L.geoJSON(geoJSONData);
             const bounds = geojsonLayer.getBounds();
 
+            // Bounds が有効か確認
             if (bounds.isValid()) {
                 map.fitBounds(bounds);
             } else {
@@ -41,8 +39,6 @@ const getColorByProgress = (progress: number) => {
             return 'yellow';
         case 2:
             return 'blue';
-        case 3:
-            return 'gray';
         default:
             return 'gray';
     }
@@ -58,17 +54,18 @@ const parseWKT = (wkt: string): GeoJSON.Geometry | null => {
     }
 };
 
-const Map: React.FC<MapProps> = ({ onProgressUpdate }) => {
+const Map: React.FC = () => {
     const [geoJSONData, setGeoJSONData] = useState<FeatureCollection | null>(null);
     const [progressData, setProgressData] = useState<ProgressData>({});
 
     useEffect(() => {
-        fetch('./Polygon.csv')
+        fetch('./Polygon.csv') // Polygon.csv のリンク
             .then((response) => response.text())
             .then((csvText) => {
                 Papa.parse(csvText, {
                     header: true,
                     complete: (results) => {
+
                         const features = results.data
                             .filter((row: any) => row.WKT && row.region)
                             .map((row: any) => {
@@ -92,13 +89,15 @@ const Map: React.FC<MapProps> = ({ onProgressUpdate }) => {
                             type: 'FeatureCollection',
                             features,
                         });
+
+
                     },
                 });
             });
     }, []);
 
     useEffect(() => {
-        fetch('./Progress.csv')
+        fetch('./Progress.csv') // Progress.csv のリンク
             .then((response) => response.text())
             .then((csvText) => {
                 Papa.parse(csvText, {
@@ -111,14 +110,13 @@ const Map: React.FC<MapProps> = ({ onProgressUpdate }) => {
                             }
                         });
                         setProgressData(data);
-                        onProgressUpdate(data);
                     },
                 });
             });
-    }, [onProgressUpdate]);
+    }, []);
 
-    const onEachFeature = useCallback((feature: Feature, layer: L.Layer) => {
-        const regionId = feature.properties?.region as string;
+    const onEachFeature = (feature: any, layer: L.Layer) => {
+        const regionId = feature.properties.region;
         const progress = progressData[regionId] || 0;
         const color = getColorByProgress(progress);
 
@@ -136,40 +134,42 @@ const Map: React.FC<MapProps> = ({ onProgressUpdate }) => {
                     let newProgress = (progressData[regionId] || 0) + 1;
                     if (newProgress > 3) newProgress = 0;
 
-                    const newProgressData = { ...progressData, [regionId]: newProgress };
-                    setProgressData(newProgressData);
-                    onProgressUpdate(newProgressData);
-
+                    progressData[regionId] = newProgress;
                     const newColor = getColorByProgress(newProgress);
+
                     targetLayer.setStyle({
                         fillColor: newColor,
                     });
+
+                    // Progress.csvに書き込む
+                    updateProgressCSV(regionId, newProgress);
                 },
             });
         } else {
             console.warn('Unexpected layer type:', layer);
         }
-    }, [progressData, onProgressUpdate]);
+    };
 
-    useEffect(() => {
-        if (geoJSONData) {
-            const layer = L.geoJSON(geoJSONData);
-            layer.eachLayer((l) => {
-                if (l instanceof L.Path) {
-                    const feature = (l as any).feature as Feature;
-                    const regionId = feature.properties?.region as string;
-                    const progress = progressData[regionId] || 0;
-                    const color = getColorByProgress(progress);
-                    l.setStyle({
-                        fillColor: color,
-                        fillOpacity: 0.5,
-                        weight: 2,
-                        color: 'black',
-                    });
-                }
+    const updateProgressCSV = async (regionId: string, newProgress: number) => {
+        try {
+            const response = await fetch('/api/updateProgress', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({ regionId, progress: newProgress }),
             });
+
+            if (!response.ok) {
+                throw new Error('Failed to update progress');
+            }
+
+            console.log('Progress updated successfully');
+        } catch (error) {
+            console.error('Error updating progress:', error);
         }
-    }, [geoJSONData, progressData]);
+    };
+
 
     const handleMapReady = useCallback(() => {
         // MapContainer が準備できたときの処理
@@ -184,7 +184,7 @@ const Map: React.FC<MapProps> = ({ onProgressUpdate }) => {
         >
             <TileLayer url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png" />
             {geoJSONData && (
-                <GeoJSON key={JSON.stringify(progressData)} data={geoJSONData} onEachFeature={onEachFeature} />
+                <GeoJSON data={geoJSONData} onEachFeature={onEachFeature} />
             )}
             {geoJSONData && <MapContent geoJSONData={geoJSONData} />}
         </MapContainer>

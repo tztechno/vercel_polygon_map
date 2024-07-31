@@ -14,7 +14,6 @@ git pull
 git init
 git remote add origin https://github.com/tztechno/vercel_polygon_map.git
 
-
 cd vercel_polygon_map
 git add .
 git commit -m “2024-07-31”
