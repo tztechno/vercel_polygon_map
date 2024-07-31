@@ -62,6 +62,21 @@ const Map: React.FC<MapProps> = ({ onProgressUpdate }) => {
     const [geoJSONData, setGeoJSONData] = useState<FeatureCollection | null>(null);
     const [progressData, setProgressData] = useState<ProgressData>({});
 
+    // LocalStorageからprogressDataを読み込む
+    useEffect(() => {
+        const savedProgress = localStorage.getItem('progressData');
+        if (savedProgress) {
+            const parsedProgress = JSON.parse(savedProgress);
+            setProgressData(parsedProgress);
+            onProgressUpdate(parsedProgress);
+        }
+    }, [onProgressUpdate]);
+
+    // progressDataが変更されたらLocalStorageに保存する
+    useEffect(() => {
+        localStorage.setItem('progressData', JSON.stringify(progressData));
+    }, [progressData]);
+
     useEffect(() => {
         fetch('./Polygon.csv')
             .then((response) => response.text())
@@ -130,8 +145,7 @@ const Map: React.FC<MapProps> = ({ onProgressUpdate }) => {
                 color: 'black',
             });
 
-            layer.off('click'); // クリックイベントリスナーの重複を防ぐ
-
+            layer.off('click');
             layer.on({
                 click: (e: L.LeafletMouseEvent) => {
                     const targetLayer = e.target as L.Path;
@@ -140,28 +154,23 @@ const Map: React.FC<MapProps> = ({ onProgressUpdate }) => {
 
                     console.log(`Clicked ${regionId}: Old Progress ${progress}, New Progress ${newProgress}`);
 
-                    // 進捗データを更新し、状態を設定する
                     const newProgressData = { ...progressData, [regionId]: newProgress };
                     setProgressData(newProgressData);
                     onProgressUpdate(newProgressData);
 
-                    // 新しい色を設定する
                     const newColor = getColorByProgress(newProgress);
                     targetLayer.setStyle({
                         fillColor: newColor,
-                        fillOpacity: 0.5, // 追加: 不透明度を設定
+                        fillOpacity: 0.5,
                     });
                 },
             });
-
         } else {
             console.warn('Unexpected layer type:', layer);
         }
     }, [progressData, onProgressUpdate]);
 
-
     return (
-
         <MapContainer
             style={{ height: '600px', width: '100%' }}
             center={[0, 0]}
@@ -172,14 +181,12 @@ const Map: React.FC<MapProps> = ({ onProgressUpdate }) => {
                 <GeoJSON
                     data={geoJSONData}
                     onEachFeature={onEachFeature}
-                    key={JSON.stringify(progressData)} // この行を追加
+                    key={JSON.stringify(progressData)}
                 />
             )}
             {geoJSONData && <MapContent geoJSONData={geoJSONData} />}
         </MapContainer>
     );
-
 };
 
 export default Map;
-
