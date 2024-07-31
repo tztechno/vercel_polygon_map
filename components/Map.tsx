@@ -115,25 +115,32 @@ const Map: React.FC<MapProps> = ({ onProgressUpdate }) => {
 
     const onEachFeature = useCallback((feature: Feature, layer: L.Layer) => {
         const regionId = feature.properties?.region as string;
-        const progress = progressData[regionId] || 0;
-        const color = getColorByProgress(progress);
+
+        const updateLayerStyle = () => {
+            const currentProgress = progressData[regionId] || 0;
+            const color = getColorByProgress(currentProgress);
+            if (layer instanceof L.Polygon || layer instanceof L.Polyline) {
+                layer.setStyle({
+                    fillColor: color,
+                    fillOpacity: 0.5,
+                    weight: 2,
+                    color: 'black',
+                });
+            }
+        };
+
+        updateLayerStyle();
 
         if (layer instanceof L.Polygon || layer instanceof L.Polyline) {
-            layer.setStyle({
-                fillColor: color,
-                fillOpacity: 0.5,
-                weight: 2,
-                color: 'black',
-            });
-
             layer.off('click');
             layer.on({
                 click: (e: L.LeafletMouseEvent) => {
                     const targetLayer = e.target as L.Path;
-                    let newProgress = (progressData[regionId] || 0) + 1;
+                    const currentProgress = progressData[regionId] || 0;
+                    let newProgress = currentProgress + 1;
                     if (newProgress > 3) newProgress = 0;
 
-                    console.log(`Clicked ${regionId}: Old Progress ${progress}, New Progress ${newProgress}`);
+                    console.log(`Clicked ${regionId}: Old Progress ${currentProgress}, New Progress ${newProgress}`);
 
                     setProgressData(prev => ({ ...prev, [regionId]: newProgress }));
 
@@ -147,16 +154,17 @@ const Map: React.FC<MapProps> = ({ onProgressUpdate }) => {
         } else {
             console.warn('Unexpected layer type:', layer);
         }
-    }, [progressData]);
+    }, []); // 依存配列から progressData を削除
 
     const memoizedGeoJSON = useMemo(() => (
         geoJSONData && (
             <GeoJSON
+                key={JSON.stringify(progressData)} // この行を追加
                 data={geoJSONData}
                 onEachFeature={onEachFeature}
             />
         )
-    ), [geoJSONData, onEachFeature]);
+    ), [geoJSONData, onEachFeature, progressData]); // progressData を依存配列に追加
 
     return (
         <MapContainer

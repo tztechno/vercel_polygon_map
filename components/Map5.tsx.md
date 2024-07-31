@@ -1,14 +1,17 @@
-import { useEffect, useState, useCallback } from 'react';
+import { useEffect, useState, useCallback, useMemo } from 'react';
 import { MapContainer, TileLayer, GeoJSON, useMap } from 'react-leaflet';
 import * as Papa from 'papaparse';
 import L from 'leaflet';
 import 'leaflet/dist/leaflet.css';
-import { FeatureCollection } from 'geojson';
+import { FeatureCollection, Feature } from 'geojson';
 import wellknown from 'wellknown';
 
-
-interface ProgressData {
+export interface ProgressData {
     [key: string]: number;
+}
+
+interface MapProps {
+    onProgressUpdate: (progressData: ProgressData) => void;
 }
 
 const MapContent: React.FC<{ geoJSONData: FeatureCollection }> = ({ geoJSONData }) => {
@@ -19,7 +22,6 @@ const MapContent: React.FC<{ geoJSONData: FeatureCollection }> = ({ geoJSONData 
             const geojsonLayer = L.geoJSON(geoJSONData);
             const bounds = geojsonLayer.getBounds();
 
-            // Bounds が有効か確認
             if (bounds.isValid()) {
                 map.fitBounds(bounds);
             } else {
@@ -39,8 +41,10 @@ const getColorByProgress = (progress: number) => {
             return 'yellow';
         case 2:
             return 'blue';
-        default:
+        case 3:
             return 'gray';
+        default:
+            return 'black';
     }
 };
 
@@ -54,18 +58,30 @@ const parseWKT = (wkt: string): GeoJSON.Geometry | null => {
     }
 };
 
-const Map: React.FC = () => {
+const Map: React.FC<MapProps> = ({ onProgressUpdate }) => {
     const [geoJSONData, setGeoJSONData] = useState<FeatureCollection | null>(null);
-    const [progressData, setProgressData] = useState<ProgressData>({});
+    const [progressData, setProgressData] = useState<ProgressData>(() => {
+        const savedProgress = localStorage.getItem('progressData');
+        return savedProgress ? JSON.parse(savedProgress) : {};
+    });
 
     useEffect(() => {
-        fetch('./Polygon.csv') // Polygon.csv のリンク
-            .then((response) => response.text())
+        localStorage.setItem('progressData', JSON.stringify(progressData));
+        onProgressUpdate(progressData);
+    }, [progressData, onProgressUpdate]);
+
+    useEffect(() => {
+        fetch('/Polygon.csv')
+            .then((response) => {
+                if (!response.ok) {
+                    throw new Error('Network response was not ok');
+                }
+                return response.text();
+            })
             .then((csvText) => {
                 Papa.parse(csvText, {
                     header: true,
                     complete: (results) => {
-
                         const features = results.data
                             .filter((row: any) => row.WKT && row.region)
                             .map((row: any) => {
@@ -89,103 +105,75 @@ const Map: React.FC = () => {
                             type: 'FeatureCollection',
                             features,
                         });
-
-
                     },
                 });
+            })
+            .catch((error) => {
+                console.error('Error fetching Polygon.csv:', error);
             });
     }, []);
 
-    useEffect(() => {
-        fetch('./Progress.csv') // Progress.csv のリンク
-            .then((response) => response.text())
-            .then((csvText) => {
-                Papa.parse(csvText, {
-                    header: true,
-                    complete: (results) => {
-                        const data: ProgressData = {};
-                        results.data.forEach((row: any) => {
-                            if (row.region && row.progress) {
-                                data[row.region] = Number(row.progress);
-                            }
-                        });
-                        setProgressData(data);
-                    },
-                });
-            });
-    }, []);
+    const onEachFeature = useCallback((feature: Feature, layer: L.Layer) => {
+        const regionId = feature.properties?.region as string;
 
-    const onEachFeature = (feature: any, layer: L.Layer) => {
-        const regionId = feature.properties.region;
-        const progress = progressData[regionId] || 0;
-        const color = getColorByProgress(progress);
+        const updateLayerStyle = () => {
+            const currentProgress = progressData[regionId] || 0;
+            const color = getColorByProgress(currentProgress);
+            if (layer instanceof L.Polygon || layer instanceof L.Polyline) {
+                layer.setStyle({
+                    fillColor: color,
+                    fillOpacity: 0.5,
+                    weight: 2,
+                    color: 'black',
+                });
+            }
+        };
+
+        updateLayerStyle();
 
         if (layer instanceof L.Polygon || layer instanceof L.Polyline) {
-            layer.setStyle({
-                fillColor: color,
-                fillOpacity: 0.5,
-                weight: 2,
-                color: 'black',
-            });
-
+            layer.off('click');
             layer.on({
                 click: (e: L.LeafletMouseEvent) => {
                     const targetLayer = e.target as L.Path;
-                    let newProgress = (progressData[regionId] || 0) + 1;
+                    const currentProgress = progressData[regionId] || 0;
+                    let newProgress = currentProgress + 1;
                     if (newProgress > 3) newProgress = 0;
 
-                    progressData[regionId] = newProgress;
-                    const newColor = getColorByProgress(newProgress);
+                    console.log(`Clicked ${regionId}: Old Progress ${currentProgress}, New Progress ${newProgress}`);
 
+                    setProgressData(prev => ({ ...prev, [regionId]: newProgress }));
+
+                    const newColor = getColorByProgress(newProgress);
                     targetLayer.setStyle({
                         fillColor: newColor,
+                        fillOpacity: 0.5,
                     });
-
-                    // Progress.csvに書き込む
-                    updateProgressCSV(regionId, newProgress);
                 },
             });
         } else {
             console.warn('Unexpected layer type:', layer);
         }
-    };
+    }, []); // 依存配列から progressData を削除
 
-    const updateProgressCSV = async (regionId: string, newProgress: number) => {
-        try {
-            const response = await fetch('/api/updateProgress', {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                },
-                body: JSON.stringify({ regionId, progress: newProgress }),
-            });
-
-            if (!response.ok) {
-                throw new Error('Failed to update progress');
-            }
-
-            console.log('Progress updated successfully');
-        } catch (error) {
-            console.error('Error updating progress:', error);
-        }
-    };
-
-
-    const handleMapReady = useCallback(() => {
-        // MapContainer が準備できたときの処理
-    }, []);
+    const memoizedGeoJSON = useMemo(() => (
+        geoJSONData && (
+            <GeoJSON
+                key={JSON.stringify(progressData)} // この行を追加
+                data={geoJSONData}
+                onEachFeature={onEachFeature}
+            />
+        )
+    ), [geoJSONData, onEachFeature, progressData]); // progressData を依存配列に追加
 
     return (
         <MapContainer
             style={{ height: '600px', width: '100%' }}
             center={[0, 0]}
             zoom={2}
-            whenReady={handleMapReady}
         >
             <TileLayer url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png" />
-            {geoJSONData && (
-                <GeoJSON data={geoJSONData} onEachFeature={onEachFeature} />
-            )}
+            {memoizedGeoJSON}
             {geoJSONData && <MapContent geoJSONData={geoJSONData} />}
         </MapContainer>
     );
