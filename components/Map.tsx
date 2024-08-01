@@ -1,10 +1,10 @@
-import { useEffect, useState, useCallback, useMemo, forwardRef, useImperativeHandle } from 'react';
+import React, { useEffect, useState, useCallback, useMemo } from 'react';
 import { MapContainer, TileLayer, GeoJSON, useMap } from 'react-leaflet';
-import * as Papa from 'papaparse';
 import L from 'leaflet';
 import 'leaflet/dist/leaflet.css';
 import { FeatureCollection, Feature } from 'geojson';
 import wellknown from 'wellknown';
+import * as Papa from 'papaparse';
 
 export interface ProgressData {
     [key: string]: number;
@@ -12,10 +12,7 @@ export interface ProgressData {
 
 interface MapProps {
     onProgressUpdate: (progressData: ProgressData) => void;
-}
-
-export interface MapHandle {
-    loadInitialProgressData: () => void;
+    progressData: ProgressData;
 }
 
 const MapContent: React.FC<{ geoJSONData: FeatureCollection }> = ({ geoJSONData }) => {
@@ -62,41 +59,8 @@ const parseWKT = (wkt: string): GeoJSON.Geometry | null => {
     }
 };
 
-const Map = forwardRef<MapHandle, MapProps>(({ onProgressUpdate }, ref) => {
+const Map: React.FC<MapProps> = ({ onProgressUpdate, progressData }) => {
     const [geoJSONData, setGeoJSONData] = useState<FeatureCollection | null>(null);
-    const [progressData, setProgressData] = useState<ProgressData>(() => {
-        const savedProgress = localStorage.getItem('progressData');
-        return savedProgress ? JSON.parse(savedProgress) : {};
-    });
-
-    const loadInitialProgressData = useCallback(() => {
-        fetch('./Progress.csv')
-            .then((response) => response.text())
-            .then((csvText) => {
-                Papa.parse(csvText, {
-                    header: true,
-                    complete: (results) => {
-                        const data: ProgressData = {};
-                        results.data.forEach((row: any) => {
-                            if (row.region && row.progress) {
-                                data[row.region] = Number(row.progress);
-                            }
-                        });
-                        setProgressData(data);
-                        onProgressUpdate(data);
-                    },
-                });
-            });
-    }, [onProgressUpdate]);
-
-    useImperativeHandle(ref, () => ({
-        loadInitialProgressData,
-    }), [loadInitialProgressData]);
-
-    useEffect(() => {
-        localStorage.setItem('progressData', JSON.stringify(progressData));
-        onProgressUpdate(progressData);
-    }, [progressData, onProgressUpdate]);
 
     useEffect(() => {
         fetch('/Polygon.csv')
@@ -161,18 +125,17 @@ const Map = forwardRef<MapHandle, MapProps>(({ onProgressUpdate }, ref) => {
         if (layer instanceof L.Polygon || layer instanceof L.Polyline) {
             layer.on({
                 click: () => {
-                    setProgressData((prevData) => {
-                        const currentProgress = prevData[regionId] || 0;
-                        const newProgress = (currentProgress + 1) % 4;
-                        updateStyle(newProgress);
-                        return { ...prevData, [regionId]: newProgress };
-                    });
+                    const currentProgress = progressData[regionId] || 0;
+                    const newProgress = (currentProgress + 1) % 4;
+                    const newProgressData = { ...progressData, [regionId]: newProgress };
+                    updateStyle(newProgress);
+                    onProgressUpdate(newProgressData);
                 },
             });
         } else {
             console.warn('Unexpected layer type:', layer);
         }
-    }, [progressData]);
+    }, [progressData, onProgressUpdate]);
 
     const memoizedGeoJSON = useMemo(() => (
         geoJSONData && (
@@ -194,8 +157,6 @@ const Map = forwardRef<MapHandle, MapProps>(({ onProgressUpdate }, ref) => {
             {geoJSONData && <MapContent geoJSONData={geoJSONData} />}
         </MapContainer>
     );
-});
-
-Map.displayName = 'Map';
+};
 
 export default Map;
