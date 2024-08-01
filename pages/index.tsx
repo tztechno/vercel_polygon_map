@@ -14,7 +14,7 @@ const IndexPage: React.FC = () => {
     }, []);
 
     const handleInitialDataLoad = useCallback((data: ProgressData) => {
-        setProgressData(data);
+        setProgressData(prevData => ({ ...prevData, ...data }));
     }, []);
 
     const handleSaveCSV = () => {

@@ -120,12 +120,13 @@ const Map: React.FC<MapProps> = ({ onProgressUpdate, progressData }) => {
             }
         };
 
-        updateStyle(progressData[regionId] || 0);
+        // 初期状態を灰色（progress 3）に設定
+        updateStyle(progressData[regionId] !== undefined ? progressData[regionId] : 3);
 
         if (layer instanceof L.Polygon || layer instanceof L.Polyline) {
             layer.on({
                 click: () => {
-                    const currentProgress = progressData[regionId] || 0;
+                    const currentProgress = progressData[regionId] !== undefined ? progressData[regionId] : 3;
                     const newProgress = (currentProgress + 1) % 4;
                     const newProgressData = { ...progressData, [regionId]: newProgress };
                     updateStyle(newProgress);
@@ -136,15 +137,33 @@ const Map: React.FC<MapProps> = ({ onProgressUpdate, progressData }) => {
             console.warn('Unexpected layer type:', layer);
         }
     }, [progressData, onProgressUpdate]);
+    
+    // progressDataが変更されたときにGeoJSONを更新
+    useEffect(() => {
+        if (geoJSONData) {
+            setGeoJSONData({
+                ...geoJSONData,
+                features: geoJSONData.features.map(feature => ({
+                    ...feature,
+                    properties: {
+                        ...feature.properties,
+                        progress: progressData[feature.properties?.region as string] || 3
+                    }
+                }))
+            });
+        }
+    }, [progressData]);
+
 
     const memoizedGeoJSON = useMemo(() => (
         geoJSONData && (
             <GeoJSON
+                key={JSON.stringify(progressData)} // キーを追加して強制的に再レンダリング
                 data={geoJSONData}
                 onEachFeature={onEachFeature}
             />
         )
-    ), [geoJSONData, onEachFeature]);
+    ), [geoJSONData, onEachFeature, progressData]);
 
     return (
         <MapContainer
