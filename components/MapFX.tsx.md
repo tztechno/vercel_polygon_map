@@ -1,8 +1,8 @@
 import React, { useEffect, useState, useCallback, useMemo } from 'react';
-import { MapContainer, TileLayer, GeoJSON, useMap } from 'react-leaflet';
+import { MapContainer, TileLayer, GeoJSON, useMap, Marker, Tooltip } from 'react-leaflet';
 import L from 'leaflet';
 import 'leaflet/dist/leaflet.css';
-import { FeatureCollection, Feature } from 'geojson';
+import { FeatureCollection, Feature, Polygon } from 'geojson';
 import wellknown from 'wellknown';
 import * as Papa from 'papaparse';
 
@@ -15,24 +15,28 @@ interface MapProps {
     progressData: ProgressData;
 }
 
+
 const MapContent: React.FC<{ geoJSONData: FeatureCollection }> = ({ geoJSONData }) => {
     const map = useMap();
 
     useEffect(() => {
-        if (map && geoJSONData && geoJSONData.features.length > 0) {
-            const geojsonLayer = L.geoJSON(geoJSONData);
-            const bounds = geojsonLayer.getBounds();
-
-            if (bounds.isValid()) {
-                map.fitBounds(bounds);
-            } else {
-                console.warn('Invalid bounds:', bounds);
-            }
+        if (geoJSONData) {
+            setGeoJSONData(prevData => ({
+                ...prevData,
+                features: prevData.features.map(feature => ({
+                    ...feature,
+                    properties: {
+                        ...feature.properties,
+                        progress: progressData[feature.properties?.region as string] || 3
+                    }
+                }))
+            }));
         }
-    }, [map, geoJSONData]);
+    }, [progressData]);
 
     return null;
 };
+
 
 const getColorByProgress = (progress: number) => {
     switch (progress) {
@@ -58,6 +62,23 @@ const parseWKT = (wkt: string): GeoJSON.Geometry | null => {
         return null;
     }
 };
+
+// ポリゴンの中心点を計算する関数
+const calculatePolygonCenter = (coordinates: number[][][]): [number, number] => {
+    let totalLat = 0;
+    let totalLng = 0;
+    let pointCount = 0;
+
+    coordinates[0].forEach(coord => {
+        totalLat += coord[1];
+        totalLng += coord[0];
+        pointCount++;
+    });
+
+    return [totalLat / pointCount, totalLng / pointCount];
+};
+
+
 
 const Map: React.FC<MapProps> = ({ onProgressUpdate, progressData }) => {
     const [geoJSONData, setGeoJSONData] = useState<FeatureCollection | null>(null);
@@ -105,6 +126,7 @@ const Map: React.FC<MapProps> = ({ onProgressUpdate, progressData }) => {
             });
     }, []);
 
+
     const onEachFeature = useCallback((feature: Feature, layer: L.Layer) => {
         const regionId = feature.properties?.region as string;
 
@@ -137,31 +159,55 @@ const Map: React.FC<MapProps> = ({ onProgressUpdate, progressData }) => {
             console.warn('Unexpected layer type:', layer);
         }
     }, [progressData, onProgressUpdate]);
+    
 
     // progressDataが変更されたときにGeoJSONを更新
     useEffect(() => {
         if (geoJSONData) {
-            setGeoJSONData({
-                ...geoJSONData,
-                features: geoJSONData.features.map(feature => ({
+            setGeoJSONData(prevData => ({
+                ...prevData,
+                features: prevData.features.map(feature => ({
                     ...feature,
                     properties: {
                         ...feature.properties,
                         progress: progressData[feature.properties?.region as string] || 3
                     }
                 }))
-            });
+            }));
         }
     }, [progressData]);
 
 
+
     const memoizedGeoJSON = useMemo(() => (
         geoJSONData && (
-            <GeoJSON
-                key={JSON.stringify(progressData)} // キーを追加して強制的に再レンダリング
-                data={geoJSONData}
-                onEachFeature={onEachFeature}
-            />
+            <>
+                <GeoJSON
+                    key={JSON.stringify(progressData)}
+                    data={geoJSONData}
+                    onEachFeature={onEachFeature}
+                />
+                {geoJSONData.features.map((feature, index) => {
+                    if (feature.geometry.type === 'Polygon') {
+                        const center = calculatePolygonCenter((feature.geometry as Polygon).coordinates);
+                        return (
+                            <Marker
+                                key={index}
+                                position={[center[0], center[1]]}
+                                icon={L.divIcon({
+                                    className: 'region-label',
+                                    html: `<div style="background-color: white; border: 1px solid black; border-radius: 50%; width: 20px; height: 20px; display: flex; justify-content: center; align-items: center;">${feature.properties?.region}</div>`
+                                })}
+                            >
+                                <Tooltip permanent>
+                                    Region {feature.properties?.region}
+                                </Tooltip>
+                            </Marker>
+                        );
+                    }
+                    return null;
+                })}
+            </>
         )
     ), [geoJSONData, onEachFeature, progressData]);
 
@@ -177,5 +223,6 @@ const Map: React.FC<MapProps> = ({ onProgressUpdate, progressData }) => {
         </MapContainer>
     );
 };
+
 
 export default Map;
