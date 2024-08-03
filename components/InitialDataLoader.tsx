@@ -8,7 +8,7 @@ interface InitialDataLoaderProps {
 
 const InitialDataLoader: React.FC<InitialDataLoaderProps> = ({ onDataLoaded }) => {
     const loadInitialProgressData = useCallback(() => {
-        fetch('./Progress.csv')
+        fetch('https://drive.google.com/file/d/1Tz6GgntkoXWg846roquzoa1ywPCENmmH/view?usp=drive_link')
             .then((response) => response.text())
             .then((csvText) => {
                 Papa.parse(csvText, {
