@@ -59,21 +59,24 @@ const IndexPage: React.FC = () => {
                 </ul>
                 <InitialDataLoader onDataLoaded={handleInitialDataLoad} />
                 <button onClick={handleSaveCSV}>Save Progress</button>
-        <p>
-            <a href="https://docs.google.com/spreadsheets/d/18U4Dam-7jCATZuUEEElAMhb62EqTX0EaspFZKcq0K1U/edit?usp=drive_link" target="_blank" rel="noopener noreferrer" class="button">
-                Progress Report
-            </a>
-        </p>
-        <p>
-            <a href="https://docs.google.com/spreadsheets/d/18U4Dam-7jCATZuUEEElAMhb62EqTX0EaspFZKcq0K1U/edit?usp=drive_link" target="_blank" rel="noopener noreferrer" class="button">
-                Upload Progress
-            </a>
-        </p>
-        <p>
-            <a href="https://docs.google.com/spreadsheets/d/18U4Dam-7jCATZuUEEElAMhb62EqTX0EaspFZKcq0K1U/edit?usp=drive_link" target="_blank" rel="noopener noreferrer" class="button">
-                Download Progress
-            </a>
-        </p>
+<p>
+    <a href="https://docs.google.com/spreadsheets/d/18U4Dam-7jCATZuUEEElAMhb62EqTX0EaspFZKcq0K1U/edit?usp=drive_link" target="_blank" rel="noopener noreferrer"
+       class="inline-block px-4 py-2 text-lg font-bold text-white bg-blue-500 rounded-lg transition-colors duration-300 hover:bg-blue-700">
+       Progress Report
+    </a>
+</p>
+<p>
+    <a href="https://docs.google.com/spreadsheets/d/18U4Dam-7jCATZuUEEElAMhb62EqTX0EaspFZKcq0K1U/edit?usp=drive_link" target="_blank" rel="noopener noreferrer"
+       class="inline-block px-4 py-2 text-lg font-bold text-white bg-blue-500 rounded-lg transition-colors duration-300 hover:bg-blue-700">
+       Upload Progress
+    </a>
+</p>
+<p>
+    <a href="https://docs.google.com/spreadsheets/d/18U4Dam-7jCATZuUEEElAMhb62EqTX0EaspFZKcq0K1U/edit?usp=drive_link" target="_blank" rel="noopener noreferrer"
+       class="inline-block px-4 py-2 text-lg font-bold text-white bg-blue-500 rounded-lg transition-colors duration-300 hover:bg-blue-700">
+       Download Progress
+    </a>
+</p>
             </div>
         </div>
     );
