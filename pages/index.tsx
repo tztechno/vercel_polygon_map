@@ -3,7 +3,7 @@ import dynamic from 'next/dynamic';
 import { ProgressData } from '../components/Map';
 import InitialDataLoader from '../components/InitialDataLoader';
 import * as Papa from 'papaparse';
-import 'tailwindcss/tailwind.css'; // Tailwind CSSのインポート
+//import 'tailwindcss/tailwind.css'; // Tailwind CSSのインポート
 
 const MapComponent = dynamic(() => import('../components/Map'), { ssr: false });
 
@@ -60,24 +60,18 @@ const IndexPage: React.FC = () => {
                 </ul>
                 <InitialDataLoader onDataLoaded={handleInitialDataLoad} />
                 <button onClick={handleSaveCSV}>Save Progress</button>
+                
 <p>
-    <a href="https://docs.google.com/spreadsheets/d/18U4Dam-7jCATZuUEEElAMhb62EqTX0EaspFZKcq0K1U/edit?usp=drive_link" target="_blank" rel="noopener noreferrer"
-       className="inline-block px-4 py-2 text-lg font-bold text-white bg-blue-500 rounded-lg transition-colors duration-300 hover:bg-blue-700">
-       Progress Report 
-    </a>
+<a 
+  href="https://docs.google.com/spreadsheets/d/18U4Dam-7jCATZuUEEElAMhb62EqTX0EaspFZKcq0K1U/edit?usp=drive_link" 
+  target="_blank" 
+  rel="noopener noreferrer"
+  className="text-blue-500 hover:underline"
+>
+  Progress Report
+</a>
 </p>
-<p>
-    <a href="https://docs.google.com/spreadsheets/d/18U4Dam-7jCATZuUEEElAMhb62EqTX0EaspFZKcq0K1U/edit?usp=drive_link" target="_blank" rel="noopener noreferrer"
-       className="inline-block px-4 py-2 text-lg font-bold text-white bg-blue-500 rounded-lg transition-colors duration-300 hover:bg-blue-700">
-       Upload Progress
-    </a>
-</p>
-<p>
-    <a href="https://docs.google.com/spreadsheets/d/18U4Dam-7jCATZuUEEElAMhb62EqTX0EaspFZKcq0K1U/edit?usp=drive_link" target="_blank" rel="noopener noreferrer"
-       className="inline-block px-4 py-2 text-lg font-bold text-white bg-blue-500 rounded-lg transition-colors duration-300 hover:bg-blue-700">
-       Download Progress
-    </a>
-</p>
+
             </div>
         </div>
     );
