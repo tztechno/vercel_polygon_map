@@ -58,9 +58,9 @@ const IndexPage: React.FC = () => {
                     ))}
                 </ul>
                 <InitialDataLoader onDataLoaded={handleInitialDataLoad} />
-                <button onClick={handleSaveCSV}>Save Progress to CSV</button>
+                <button onClick={handleSaveCSV}>Save Progress</button>
             </div>
-            <div> <a href="https://docs.google.com/spreadsheets/d/18U4Dam-7jCATZuUEEElAMhb62EqTX0EaspFZKcq0K1U/edit?usp=drive_link" target="_blank">作業進捗を記録</a> </div>
+            <p> <a href="https://docs.google.com/spreadsheets/d/18U4Dam-7jCATZuUEEElAMhb62EqTX0EaspFZKcq0K1U/edit?usp=drive_link" target="_blank">作業進捗記録</a> </p>
         </div>
     );
 };
