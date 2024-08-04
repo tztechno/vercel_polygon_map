@@ -1,4 +1,10 @@
 function onEdit(e) {
+
+  if (!e || !e.range) {
+    console.log("Invalid edit event");
+    return;
+  }
+
   var range = e.range;
   var sheet = range.getSheet();
   
@@ -7,19 +13,6 @@ function onEdit(e) {
     var row = range.getRow();
     var column = range.getColumn();
     
-    // チェックボックスが H3 の場合
-    if (row == 3 && column == 8) { // H3 は (3, 8)
-      if (range.getValue() === true) { // チェックボックスがオンの場合
-        uploadToGitHub(); // uploadToGitHub 関数を呼び出し
-      }
-    }
-    
-    // チェックボックスが H4 の場合
-    if (row == 4 && column == 8) { // H4 は (4, 8)
-      if (range.getValue() === true) { // チェックボックスがオンの場合
-        downloadFromGitHub(); // downloadFromGitHub 関数を呼び出し
-      }
-    }
     
     // その他の処理
     if (column == 3) { // 既存の処理を維持
@@ -45,4 +38,5 @@ function onEdit(e) {
       sheet.getRange(row, 6).setValue(formattedTime); // 6列目に時間を設定
     }
   }
+
 }
