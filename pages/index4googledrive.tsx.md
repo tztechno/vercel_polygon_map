@@ -48,7 +48,7 @@ const IndexPage: React.FC = () => {
                     progressData={progressData}
                 />
             </div>
-            <div style={{ width: '20%', padding: '20px' }}>
+            <div style={{ width: '20%', padding: '20px', display: 'flex', flexDirection: 'column', alignItems: 'flex-start' }}>
                 <h2>Progress Data</h2>
                 <ul>
                     {Object.entries(progressData).map(([region, progress]) => (
@@ -58,9 +58,13 @@ const IndexPage: React.FC = () => {
                     ))}
                 </ul>
                 <InitialDataLoader onDataLoaded={handleInitialDataLoad} />
-                <button onClick={handleSaveCSV}>Save Progress to CSV</button>
+                <button onClick={handleSaveCSV}>Save Progress</button>
+                <p>
+                    <a href="https://docs.google.com/spreadsheets/d/18U4Dam-7jCATZuUEEElAMhb62EqTX0EaspFZKcq0K1U/edit?usp=drive_link" target="_blank" rel="noopener noreferrer">
+                        作業進捗記録
+                    </a>
+                </p>
             </div>
-            <div> <a href="https://docs.google.com/spreadsheets/d/18U4Dam-7jCATZuUEEElAMhb62EqTX0EaspFZKcq0K1U/edit?usp=drive_link" target="_blank">作業進捗を記録</a> </div>
         </div>
     );
 };
