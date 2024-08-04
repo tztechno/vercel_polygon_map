@@ -3,6 +3,7 @@ import dynamic from 'next/dynamic';
 import { ProgressData } from '../components/Map';
 import InitialDataLoader from '../components/InitialDataLoader';
 import * as Papa from 'papaparse';
+import 'tailwindcss/tailwind.css'; // Tailwind CSSのインポート
 
 const MapComponent = dynamic(() => import('../components/Map'), { ssr: false });
 
